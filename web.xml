@@ -31,7 +31,7 @@
 	</filter-mapping>
 	<filter>  
         <filter-name>LoginFilter</filter-name>  
-        <filter-class>com.sekorm.common.das.security.LoginFilter</filter-class>
+        <filter-class>com.common.security.LoginFilter</filter-class>
         <init-param>
         	<description>排除过滤的前缀</description>
         	<param-name>ignore</param-name>
