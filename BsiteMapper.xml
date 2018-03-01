@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.core.dao.BsiteMapper" >
+  <resultMap id="BaseResultMap" type="com.core.model.Bsite" >
+    <id column="id" property="id" jdbcType="INTEGER" />    
+    <result column="name" property="name" jdbcType="VARCHAR" />    
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List" >
+    id, brand_code,name, website, other_website, filter_url, type, status,website_type, reckon_download_num,creator, creator_name,create_time, updator, 
+    updator_name,update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_b_wsite
+    where id = #{id,jdbcType=INTEGER}
+  </select>   
+</mapper>
