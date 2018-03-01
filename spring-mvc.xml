@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<!-- 自动扫描controller包下的所有类，使其认为spring mvc的控制器 -->
+	<context:component-scan base-package="com.sekorm.das.controller,com.sekorm.common.das.*,com.sekorm.common.*" />
+	<!-- <context:property-placeholder location="classpath:system.properties" ignore-unresolvable="true" />
+	<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true" /> -->
+	
+	<bean class="com.sekorm.common.das.config.MysqlPropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath:config.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>	
+	
+	<!-- 系统参数配置 -->
+    <bean id="parameter" class="com.sekorm.das.common.Parameter">
+        <property name="webPortUrl" value="${resrc_url}"/>
+    </bean> 
+		
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.JstlView</value>
+		</property>
+		<property name="prefix">
+			<value>/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	<mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <!-- 避免IE执行AJAX时,返回JSON出现下载文件 -->
+            <bean   class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+                <property name="objectMapper">
+                     <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+	                     <property name="dateFormat">
+		                     <bean class="java.text.SimpleDateFormat">
+		                         <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"></constructor-arg>
+		                     </bean>
+	                     </property>
+	                 </bean>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+	<mvc:resources location="/" mapping="/**" />
+	
+</beans>
