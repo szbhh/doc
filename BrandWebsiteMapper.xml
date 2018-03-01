@@ -32,28 +32,7 @@
     <include refid="Base_Column_List" />
     from t_brand_website
     where id = #{id,jdbcType=INTEGER}
-  </select>
-  <select id="selectByIdNameWebsite" resultMap="BaseResultMap">
-		select 
-		<include refid="Base_Column_List" />		 
-		from t_brand_website t
-		<where>
-			<if test="name !=null and name != ''">
-				 LOWER(name) = #{name,jdbcType=VARCHAR}
-			</if>
-			<if test="website !=null and website !=''">
-				and LOWER(website) = #{website,jdbcType=VARCHAR}
-			</if>
-			<if test="id !=null and id !=''">
-				and id != #{id,jdbcType=INTEGER}
-			</if>
-		</where>
-		limit 1		
-	</select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from t_brand_website
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
+  </select>  
   <insert id="insert" parameterType="com.sekorm.core.model.BrandWebsite" >
     insert into t_brand_website (id, name, website, 
       other_website, filter_url, type, 
@@ -171,45 +150,7 @@
     </trim>
   </insert>
   
-  <select id="getPageList" resultMap="ExtendsResultMap">
-		select 
-		<include refid="Base_Column_List" />
-		,(SELECT count(1) from t_task_monitor where site_id =t.id ) dasTimes		
-		from t_brand_website t
-		<where>
-			<if test="brandCode !=null">
-				and brand_code = #{brandCode}
-			</if>		
-			<if test="name !=null and name != ''">
-				and LOWER(name) = #{name}
-			</if>
-			<if test="statuss !=null and statuss !=''">
-				and t.status in (			
-				<foreach collection="statuss" item="status" separator=",">
-				      #{status}
-				   </foreach>				
-				)
-			</if>
-		</where>
-		<if test="sortColumn == null or sortColumn == 0">
-		  order by update_time desc
-		</if>
-		<if test="sortColumn != null and sortColumn == 6">
-		  order by dasTimes ${sort}
-		</if>
-		
-	</select>
   
-  <select id="getAllValidList" resultMap="BaseResultMap">
-		select 
-		<include refid="Base_Column_List" />		
-		from t_brand_website 
-		where status=0
-		<if test="websiteType != null" >
-	        AND website_type = #{websiteType,jdbcType=SMALLINT}
-	     </if>
-		order by create_time desc
-  </select>
   <select id="getListByWebsiteType" resultMap="BaseResultMap">
 		select 
 		<include refid="Base_Column_List" />		
