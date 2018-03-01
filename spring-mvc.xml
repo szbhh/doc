@@ -13,11 +13,11 @@
 		   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 	<!-- 自动扫描controller包下的所有类，使其认为spring mvc的控制器 -->
-	<context:component-scan base-package="com.sekorm.das.controller,com.sekorm.common.das.*,com.sekorm.common.*" />
+	<context:component-scan base-package="com.controller,com.common.*" />
 	<!-- <context:property-placeholder location="classpath:system.properties" ignore-unresolvable="true" />
 	<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true" /> -->
 	
-	<bean class="com.sekorm.common.das.config.MysqlPropertyPlaceholderConfigurer">
+	<bean class="com.common.config.MysqlPropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:system.properties</value>
@@ -28,7 +28,7 @@
 	</bean>	
 	
 	<!-- 系统参数配置 -->
-    <bean id="parameter" class="com.sekorm.das.common.Parameter">
+    <bean id="parameter" class="com.common.Parameter">
         <property name="webPortUrl" value="${resrc_url}"/>
     </bean> 
 		
