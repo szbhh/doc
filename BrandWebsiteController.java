@@ -28,11 +28,8 @@ public class BController extends MainController{
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired	
-	private BrandWebsiteService brandWebsiteService;	
-	@Autowired	
-	private ExtendedDomainService extendedDomainService;
-	@Autowired	
-	private ExtendedDomainLogService extendedDomainLogService;
+	private BService bService;	
+	
 
 	
     @RequestMapping(value = "/main")
@@ -44,16 +41,12 @@ public class BController extends MainController{
 	@RequestMapping("/edit")
 	public String toAddOrUpdatePage(String id,HttpServletRequest request) {			
 		if (StringUtils.isNotEmpty(id)) {
-			BrandWebsite brandWebsite=brandWebsiteService.selectByPrimaryKey(Integer.valueOf(id));	
-			if(null != brandWebsite) {
-				String brandName = "";
-	    		if(null != brandWebsite.getBrandCode()) {
-	    			brandName = brandWebsiteService.getBrandName(brandWebsite.getBrandCode());
-	    		}
-				brandWebsite.setBrandName(brandName);
-				request.setAttribute("brandWebsite", brandWebsite);
-			}
+			Bsite bsite=brandWebsiteService.selectByPrimaryKey(Integer.valueOf(id));	
+			
+				
+			request.setAttribute("bsite", bsite);
+			
 		}
-		return "/brandwebsite/editbrandwebsite";
+		return "/bsite/editsite";
 	}
 }
