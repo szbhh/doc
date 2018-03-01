@@ -41,7 +41,7 @@ public class BController extends MainController{
 	@RequestMapping("/edit")
 	public String toAddOrUpdatePage(String id,HttpServletRequest request) {			
 		if (StringUtils.isNotEmpty(id)) {
-			Bsite bsite=brandWebsiteService.selectByPrimaryKey(Integer.valueOf(id));	
+			Bsite bsite=bsiteService.selectByPrimaryKey(Integer.valueOf(id));	
 			
 				
 			request.setAttribute("bsite", bsite);
