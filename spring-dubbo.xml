@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context 
+			http://www.springframework.org/schema/context/spring-context.xsd
+			http://code.alibabatech.com/schema/dubbo
+			http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+			
+	<!-- <context:property-placeholder location="classpath:system.properties" ignore-unresolvable="true" />
+	<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true" /> -->
+	<bean class="com.sekorm.common.das.config.MysqlPropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath:config.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>	
+	
+	<dubbo:application name="${log.name}"/>
+	<dubbo:registry check="false" />
+	<dubbo:registry group="${mq.switch}" address="${dubbo.server}" file="/opt/DubboCache/dubbo-registry-${log.name}.cache"/>
+	<dubbo:protocol name="dubbo" port="${dubbo.port}" />
+	<dubbo:monitor protocol="registry"  />
+	<dubbo:annotation package="com.sekorm.core.service,com.sekorm.idas.dubbo,com.sekorm.cache.das.service" />
+</beans>
