@@ -14,7 +14,7 @@
 			
 	<!-- <context:property-placeholder location="classpath:system.properties" ignore-unresolvable="true" />
 	<context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true" /> -->
-	<bean class="com.sekorm.common.das.config.MysqlPropertyPlaceholderConfigurer">
+	<bean class="com.config.MysqlPropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:system.properties</value>
@@ -29,5 +29,5 @@
 	<dubbo:registry group="${mq.switch}" address="${dubbo.server}" file="/opt/DubboCache/dubbo-registry-${log.name}.cache"/>
 	<dubbo:protocol name="dubbo" port="${dubbo.port}" />
 	<dubbo:monitor protocol="registry"  />
-	<dubbo:annotation package="com.sekorm.core.service,com.sekorm.idas.dubbo,com.sekorm.cache.das.service" />
+	<dubbo:annotation package="com.core.service" />
 </beans>
