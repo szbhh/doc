@@ -1,4 +1,4 @@
-package com.sekorm.das.controller;
+package com.controller;
 
 import java.util.Collections;
 import java.util.Date;
@@ -18,25 +18,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.sekorm.common.beans.DataReturn;
-import com.sekorm.common.beans.Page;
-import com.sekorm.common.das.security.SecurityUtils;
-import com.sekorm.common.das.security.vo.User;
-import com.sekorm.common.util.WebUtils;
-import com.sekorm.core.common.Constants;
-import com.sekorm.core.model.BrandWebsite;
-import com.sekorm.core.model.BrandWebsiteRemark;
-import com.sekorm.core.model.ExtendedDomain;
-import com.sekorm.core.model.ExtendedDomainLog;
-import com.sekorm.core.service.BrandWebsiteService;
-import com.sekorm.core.service.ExtendedDomainLogService;
-import com.sekorm.core.service.ExtendedDomainService;
+
 
 
 
 @Controller
-@RequestMapping("/brandwebsite")
-public class BrandWebsiteController extends MainController{
+@RequestMapping("/bsite")
+public class BController extends MainController{
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired	
