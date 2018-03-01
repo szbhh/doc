@@ -34,7 +34,7 @@ public class BController extends MainController{
 	
     @RequestMapping(value = "/main")
     public Object main(HttpServletRequest request, HttpServletResponse response) {
-        return "/brandwebsite/brandwebsite";
+        return "/bsite/bsite";
     }
   
  
