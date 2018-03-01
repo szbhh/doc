@@ -16,13 +16,13 @@
         	">
 
 	<context:annotation-config />	
-	<context:component-scan base-package="com.sekorm.core.service,com.sekorm.core.component,com.sekorm.core.parser,com.sekorm.*.dubbo,com.sekorm.common.das.*,com.sekorm.cache.das.service" />
+	<context:component-scan base-package="com.core.service,com.*.dubbo" />
 	
 	<task:annotation-driven/>	
 	
 	<import resource="classpath:spring/spring-mybatis.xml" />
 	
-	<bean class="com.sekorm.common.das.config.MysqlPropertyPlaceholderConfigurer">
+	<bean class="com.common.config.MysqlPropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 			    <value>classpath:jdbc.properties</value>
@@ -31,8 +31,6 @@
 			</list>
 		</property>
 		<property name="ignoreUnresolvablePlaceholders" value="true"/>
-	</bean>	
-
-    <bean id="applicationContext" class="com.sekorm.common.das.util.SpringContextUtils" />    
+	</bean>	    
 
 </beans>
