@@ -1,0 +1,22 @@
+		#################################
+		#nginx针对portal的配置文件, 勿删
+
+		proxy_set_header  Host $host:$server_port;
+		proxy_set_header  X-Real-IP  $remote_addr;
+		proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+
+		proxy_redirect  ~/portal/news/pageList\?currentPage=1$ /; # 代理首页的回跳地址
+		proxy_redirect  ~/portal/doc/pageList\?currentPage=1$ /doc/; # 代理资料首页的回跳地址
+		proxy_redirect  ~/portal/(news|doc)/pageList\?currentPage=(\d+)$ /$1/$2/; # 代理资讯/资料列表分页的回跳地址
+		proxy_redirect  ~/portal/news/view\?newId=(\d+)$ /news/$1.html; # 代理资讯详情页的回跳地址
+		proxy_redirect  ~/portal/doc/view\?docId=(\d+)$ /doc/$1.html; # 代理资料详情页的回跳地址
+		proxy_redirect  ~/portal/toSearchPage\?searchWord=(.*)$ /Web/Search/keyword/$1; # 代理搜索url的回跳地址
+		proxy_redirect  ~/portal/doc/getDocByIndex\?code=(\d+)$ /doc/index/$1/; # 代理资料索引的回跳地址
+		proxy_redirect  ~/portal/activity/view\?id=(\d+)$ /activity/$1.html; # 代理活动页面的回跳地址
+		proxy_redirect  ~/portal/activity/v2/view\?id=(\d+)$ /acti/$1.html; # 代理活动第二版页面的回跳地址
+		proxy_redirect  ~/portal$ /; # 代理portal根目录回跳地址
+
+
+		proxy_redirect  ~/portal/(.*)$ /$1; # 代理portal其他回跳地址
+		proxy_cookie_path /portal/ /; #解决代理后session不共享的问题
+		proxy_cookie_path /portal /; #解决代理后session不共享的问题A

@@ -1,0 +1,547 @@
+
+user  nobody;
+worker_processes  4;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+error_log  logs/error.log  info;
+
+pid        logs/nginx.pid;
+
+worker_rlimit_nofile 655350;
+events {
+    use epoll;
+    worker_connections  65535;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    
+
+
+    log_format log_resp_body  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for" '
+                      '$request_time $bytes_sent $request_length "$request_body" "$resp_body"';
+
+    access_log  logs/access.log  main;
+     
+    #####nginx日志转化为json格式20160715
+    log_format json_log '{ "time_local": "$msec",'
+                      '"connection": "$connection",'
+                      '"connection_requests": "$connection_requests",'
+                      '"connection_requests": "$connection_requests",'
+                      '"pid": "$pid",'
+                      '"remote_addr": "$remote_addr",'
+                      '"http_x_forwarded_for": "$http_x_forwarded_for",'
+                      '"remote_user": "$remote_user",'
+                      '"request_length": "$request_length",'
+                      '"request_method": "$request_method",'
+                      '"request_uri": "$request_uri",'
+                      '"server_protocol": "$server_protocol",'
+                      '"cookie_sc1": "$cookie_sc1",'
+                      '"request_body": "$request_body",'
+                      '"http_referer": "$http_referer",'
+                      '"http_user_agent": "$http_user_agent",'
+                      '"request_time": "$request_time",'
+                      '"status": "$status",'
+                      '"source_mark": "dev",'
+                      '"body_bytes_sent": "$body_bytes_sent"}';
+
+
+
+    access_log  /opt/openresty/nginx/logs/dev.log  json_log;
+    access_log  /opt/openresty/nginx/logs/dev001.log  json_log;
+
+
+    sendfile        on;
+    #tcp_nopush     on;
+    ##防止CC攻击####
+    #limit_zone one  $binary_remote_addr  10m;
+    limit_req_zone  $binary_remote_addr  zone=req_one:10m rate=30r/s;
+    #限制IP并发数与下载速度
+    limit_conn_zone $binary_remote_addr zone=req_download:10m;
+
+    keepalive_timeout  120;
+    server_tokens off;
+
+
+    gzip  on;
+    gzip_min_length 1k;
+    gzip_buffers 4 16k;
+    gzip_comp_level 9;
+    gzip_types text/plain application/x-javascript text/css application/javascript application/xml text/javascript
+    application/x-htpd-php image/jpeg image/gif image/png image/jpg application/json;
+    gzip_vary off;
+    gzip_disable "MSIE [1-6]\.";
+
+    ##cache20150910##
+    proxy_connect_timeout 3600;
+    proxy_read_timeout 3600;
+    proxy_send_timeout 3600;
+    proxy_buffer_size 16k;
+    proxy_buffers 4 64k;
+    proxy_busy_buffers_size 128k;
+    proxy_temp_file_write_size 128k;
+
+    ####################################20151224
+    client_header_buffer_size 512k;
+    large_client_header_buffers 4 512k;
+
+    #####nginx报499错误
+    proxy_ignore_client_abort on;
+
+    upstream appGate{
+        server 172.16.20.212:8080;
+    }
+    
+    upstream sekorm{
+        ip_hash;
+        server 172.16.20.212:8081;
+        server 172.16.20.213:8081;
+        }
+
+    upstream serviceGate{
+        server 172.16.20.212:8081;
+    }
+
+   upstream card {
+        server 172.16.20.212:8082;
+    }
+   upstream cardApi {
+        server 172.16.20.212:8082;
+    }
+   upstream osmApi {
+        server 172.16.20.212:8082;
+    }
+
+   upstream wms{
+        ip_hash;
+        server 172.16.20.213:8083;
+        server 172.16.20.212:8083;
+    }
+   upstream cms{
+        ip_hash;
+        server 172.16.20.213:8083;
+        server 172.16.20.212:8083;
+    }
+   upstream sync {
+        ip_hash;
+        server 172.16.20.213:8083;
+        server 172.16.20.212:8083;
+        }
+    upstream ecp {
+        ip_hash;
+        server 172.16.20.213:8084;
+        server 172.16.20.212:8084;
+
+        }
+    upstream bdm {
+        ip_hash;
+        server 172.16.20.213:8084;
+        server 172.16.20.212:8084;
+        }
+
+    upstream member {
+        ip_hash;
+        server 172.16.20.213:8085;
+        server 172.16.20.212:8085;
+        }
+    upstream search {
+        ip_hash;
+        server 172.16.20.213:8086;
+        server 172.16.20.212:8086;
+        }
+    upstream rgc {
+        ip_hash;
+        server 172.16.20.213:8086;
+        server 172.16.20.212:8086;
+    }
+    upstream acti {
+        ip_hash;
+        server 172.16.20.213:8087;
+        server 172.16.20.212:8087;
+    }
+   upstream gift {
+        ip_hash;
+        server 172.16.20.213:8087;
+        server 172.16.20.212:8087;
+    }
+   upstream task {
+        server 172.16.20.212:8088;
+    }
+    upstream spm {
+        server 172.16.20.212:8088;
+    }
+    upstream customer {
+        server 172.16.20.212:8088;
+    }
+    upstream pn {
+        server 172.16.20.212:8088;
+    }
+    upstream stat {
+        server  172.16.20.212:8089;
+    }
+    upstream pgc {
+        server 172.16.20.212:8090;
+    }
+    upstream supply {
+        server 172.16.20.212:8091;
+    }
+    upstream crawler {
+        server 172.16.20.212:8093;
+    }
+    upstream ecdm {
+        server 172.16.20.212:8092;
+    }
+    upstream dataCheck {
+        server 172.16.20.212:8093;
+    }
+    upstream recom {
+        ip_hash;
+        server 172.16.20.213:8094;
+        server 172.16.20.212:8094;
+    }
+    server {
+        listen       7001;
+        listen       443 ssl;
+        server_name dev.cekom.com.cn;
+        ssl_certificate       /opt/openresty/nginx/conf/Symantec/214331360980376.pem;
+        ssl_certificate_key   /opt/openresty/nginx/conf/Symantec/214331360980376.key;
+
+        #ssl加密其它配置20170517
+        ssl_session_timeout  5m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;     #指定SSL服务器端支持的协议版本
+        ssl_ciphers  HIGH:!RC4:!MD5:!aNULL:!eNULL:!NULL:!DH:!EDH:!EXP:+MEDIUM;
+        ssl_prefer_server_ciphers   on;    #在使用SSLv3和TLS协议时指定服务器的加密算法要优先于客户端的加密算法
+        
+        #后台域名禁止打开前台页面20170712
+            if ($host ~ "devm.cekom.com.cn"){
+                return 301 http://devm.cekom.com.cn:7001;
+            }
+
+            #指定IP跳到另外一个环境20170905
+            #if ($remote_addr != '172.16.9.167') {
+            #    rewrite ^/(.*)$ https://test.cekom.com.cn permanent;
+            #}
+            #多个IP跳转到另外一个环境20170905
+            #if ($remote_addr !~ "(172.16.9.14)|(172.16.9.167)") {
+            #    rewrite ^/(.*)$ https://test.cekom.com.cn permanent;
+            # }
+
+            #http跳https 20170607
+            set $flag "";# 是否要跳转到https的标记
+            if ($scheme = http) {
+                set $flag "${flag}1";
+            }
+
+            # 过滤此url, 解决app端资料下载的问题
+            if ($request_uri ~ "/wmsApi/token/getToken"){
+                set $flag "${flag}0";
+            }
+            # 过滤此url, 解决app端品牌跳出webView的问题
+            if ($request_uri ~ "/brand/"){
+                set $flag "${flag}4";
+            }
+            #过滤此url,名片不跳https,阿里云的图片服务器上配置此参数20170620
+            #if ($request_uri ~ "cardApi/*"){
+            #    set $flag "${flag}5";
+            #}
+            #过滤此url,android老的app点详情页面不跳https
+            if ($request_uri ~ "/h5/like/getLike"){
+                set $flag "${flag}6";
+            }
+            #过滤此url,android老的app点详情页面不跳https
+            if ($request_uri ~ "/h5/like/addLike"){
+                set $flag "${flag}7";
+            }
+            #
+           # 对post请求打上标记
+            if ($request_method = POST) {
+                set $flag "${flag}2";
+            }
+            # flag为1, 表示是http, 且不包含以三上种情况, 则跳转到https
+            if ($flag = '1') {
+               return 301 https://$server_name$request_uri;
+            }
+            # 对Android的请求打上标记
+            if ($http_user_agent ~ "sinfoandroid") {
+                set $flag "${flag}3";
+            }
+            # flag位12, 表示 http post 请求(不包括Android来的请求), 则跳转到https
+            if ($flag = '12') {
+               return 301 https://$server_name;
+            }
+
+           #########20171018防止刷短信
+           set $sms "";
+
+          if ($request_uri ~ "/bdm/code/smsValidateCode"){
+             set $sms  "1";
+          }
+          if ($http_user_agent !~* "sinfoIOS|sinfoandroid|11mac os") {
+              set $sms  "${sms}2";
+          }
+
+          if ($sms  = "12") {
+             return 403;
+          }
+          
+          #防止CC攻击###
+            #limit_conn   one  1;
+            limit_req   zone=req_one  burst=200;
+
+
+           location ~/(behind|front|common|management)/.*\.(gif|jpeg|jpg|JPG|png|bmp|swf|ioc|flv|html|wma|js|css|doc|map|ico|flv|html|wma|js|css|doc|map|ico|eot|svg|ttf|woff|properties|json|mp4|bcmap|txt)$ {
+                root html;
+                expires 1d;
+                }          
+
+         location = /favicon.ico {
+                        root html/front/website;
+                }
+            location ~/robots.txt {
+                root html;
+            }
+            location ~/ip.html {
+                root html;
+            }
+
+        access_log  logs/access.index.log  log_resp_body;
+ 
+        ###lua_20180313
+        lua_need_request_body on;
+
+        set $resp_body "";
+
+        body_filter_by_lua '
+            local resp_body = string.sub(ngx.arg[1], 1, 1000)
+            ngx.ctx.buffered = (ngx.ctx.buffered or "") .. resp_body
+            if ngx.arg[2] then
+                ngx.var.resp_body = ngx.ctx.buffered
+            end
+        ';
+
+         #网站维护页面20170508
+            location ~/maintenance.png {
+                            root /opt/openresty/nginx/html/weihu;
+                    }
+
+            location ~/weihu {
+                  root /opt/openresty/nginx/html;
+                  index    index.html;
+            }
+
+            location ^~/app {
+                root /opt/openresty/nginx/html/front/website;
+                        index    index.html;
+            }
+
+                        location ^~/appGate {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://appGate;
+            }
+            location /serviceGate {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto https;
+                proxy_redirect off;
+                proxy_pass http://serviceGate;
+                if ($scheme = http) {
+                  return         301 https://$host$request_uri;
+            }
+
+            }
+            location ^~/cardApi {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://cardApi;
+            }
+
+            # portal 专用的配置
+            include portal.conf;
+            include appgate.conf;
+
+                        location /nginx {
+                        stub_status on;
+                        access_log off;
+                        allow 127.0.0.1;
+                        allow 120.24.152.68;
+                        allow 121.15.166.86;
+                        deny all;
+                        }
+        
+        
+        ####lua脚本20180312
+            location /lua_test {
+                 default_type 'text/plain';
+                 content_by_lua "ngx.say('Hello, World!20180312')";
+               }
+        #error_page  404              /404.html;
+         error_page   500 502 503 504 404 403 /index.html;
+         location = /index.html {
+                             root   /opt/openresty/nginx/html/weihu;
+                        }
+
+
+    }
+
+      server{
+                        listen 7001;
+                        server_name devm.cekom.com.cn;
+
+                        #防止CC攻击###
+            #limit_conn   one  1;
+            limit_req   zone=req_one  burst=1500;
+            location ~/(behind|front|common|management|weihu)/.*\.(gif|jpeg|jpg|png|bmp|swf|ioc|flv|html|wma|js|css|doc|map|ico|txt)$ {
+                                 root html;
+                                 expires 1d;
+                        }
+                        location  ^~/fixed/ {
+                            alias /opt/openresty/nginx/html/management/dist/html/;
+                            index      home.html;
+                        }
+
+                        #网站维护页面20170508
+                        location ~/maintenance.png {
+                            root /opt/openresty/nginx/html/weihu;
+                         }
+
+                        location ~/index.html {
+                            root /opt/openresty/nginx/html/weihu;
+                          }
+                         #首页
+                rewrite ^/$ /ecp/ permanent;
+                #后台页面跳转维护页面20170508
+                #rewrite  ^/ecp   /weihu permanent;
+                        location /card {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://card;
+                        }
+                        location /osmApi {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://osmApi;
+                        }
+                        location /cms {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://cms;
+            }
+                        location /wms {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://wms;
+                        }
+                        location /sync {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://sync;
+                        }
+                        location /ecp {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://ecp;
+                        rewrite ^/ecp/mac/index  /fixed/home.html permanent;
+                        }
+                        location /bdm {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://bdm;
+                        }
+                        location /member {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://member;
+                        }
+                        location /rgc {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://rgc;
+                        }
+            location /search {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://search;
+            }
+            location /acti {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://acti;
+            }
+            location /gift {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://gift;
+            }
+            location /spm {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://spm;
+            }
+            location /customer {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://customer;
+            }
+            location /pn {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://pn;
+            }
+            location /task {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://task;
+            }
+                        location /stat {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://stat;
+                        }
+                        location /pgc {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://pgc;
+            }
+            location /supply {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://supply;
+            }
+            location /ecdm {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://ecdm;
+            }
+            location /dataCheck {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://dataCheck;
+            }
+            location /recom {
+                        proxy_set_header Host $host:7001;
+                        proxy_set_header X-Real-IP $remote_addr;
+                        proxy_pass http://recom;
+                        }
+            location /crawler {
+                proxy_set_header Host $host:7001;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass http://crawler;
+            }
+            error_page   500 502 503 504 404 403 /index.html;
+            location = /index.html {
+                 root   /opt/openresty/nginx/html/weihu;
+            }
+        }
+}

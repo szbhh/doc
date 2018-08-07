@@ -1,0 +1,296 @@
+		#IOS呼唤跳转到App下载页面—20160818
+		rewrite ^/openApp/(.*) /app/ permanent;
+		#展会引流扫描二维码20160303
+        location ^~/exhi {
+            root   /opt/nginx/html/activity;
+            index  activityForExhibit.html;
+    	} 
+
+    	# 京东活动h5的配置
+		location ^~ /vip {
+    		root html/activity;
+    		index promoActivityDownApp.html;
+		}
+    
+		# 活动静态资源入口
+		rewrite ^/activity/vip100/(.*)$ /jd100/$1 break;
+		location ^~ /jd100 {
+    		root html/activity;
+    		index index.html;
+		}
+    		
+        # 限制下载的速率
+        location ^~ /doc/downloadDoc {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/doc/downloadDoc;
+            limit_conn req_download 1; # 同一个IP的最大请求数
+            limit_rate_after 6m; # 超出1M大小的文件进行限制
+            limit_rate 400k; # 下载速率
+        }
+
+		########## portal的配置  start #################
+		# portal SEO 永久重定向的一些配置
+	    #rewrite ^/news(/?)$ / permanent;
+	    rewrite ^/doc$ /doc/ permanent;
+	    rewrite ^/news/1(/?)$ / permanent;
+	    rewrite ^/doc/1(/?)$ /doc/ permanent;
+	    rewrite ^/news/(\d+)$ /news/$1/ permanent;
+	    rewrite ^/doc/(\d+)$ /doc/$1/ permanent;
+	    
+	    # 原官网迁移
+	    # 1.老官网资讯对应新网站资讯链接
+	    location ~ "^/Ecnew/(\d+)$" {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/news/old/detail?oldNewsId=$1;
+	    }
+	    # 2.老官网资料对应新网站资料链接
+	    location ~ "^/Ectm/(\d+)$" {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/doc/old/detail?oldDocId=$1;
+	    }
+	    # 3.搜索页面
+	    # 4.关于世强页面
+	    rewrite ^/About(/?)$ /about/ permanent;
+	    rewrite ^/Purchase$ /contact/ permanent;
+	    # 5.市场活动页
+	    rewrite ^/Brand(/?)$ /brand/ permanent;
+	    rewrite ^/Ecactivity/$ /marketing/ permanent;
+	    rewrite ^/Ecactivity/actlist/type/review$ /marketing/review/ permanent;
+	    rewrite ^/Ecactivity/actlist/type/upcoming$ /marketing/upcoming/ permanent;
+	    rewrite ^/Ecactivity/actlist/type/now$ /marketing/now/ permanent;
+	    # 6.分销品牌页面
+	    rewrite ^/Brand/26$ /brand/avago/ permanent;
+	    rewrite ^/Brand/132$ /brand/acam/ permanent;
+	    rewrite ^/Brand/486$ /brand/alliance/ permanent;
+	    rewrite ^/Brand/634$ /brand/cree/ permanent;
+	    rewrite ^/Brand/84$ /brand/emc-rflabs/ permanent;
+	    rewrite ^/Brand/87$ /brand/epson/ permanent;
+	    rewrite ^/Brand/108$ /brand/littelfuse/ permanent;
+	    rewrite ^/Brand/391$ /brand/melexis/ permanent;
+	    rewrite ^/Brand/127$ /brand/renesas/ permanent;
+	    rewrite ^/Brand/117$ /brand/rogers/ permanent;
+	    rewrite ^/Brand/120$ /brand/silicon-labs/ permanent;
+	    rewrite ^/Brand/105$ /brand/infineon/ permanent;
+	    rewrite ^/Brand/506$ /brand/nemicon/ permanent;
+	    rewrite ^/Brand/342$ /brand/rep-avago/ permanent;
+	    rewrite ^/Brand/531$ /brand/ricoh/ permanent;
+	    rewrite ^/Brand/542$ /brand/vincotech/ permanent;
+	    rewrite ^/Brand/587$ /brand/smi/ permanent;
+	    rewrite ^/Ti$ /brand/keysight/ permanent;
+	    # 首页代理
+	    #location = / {
+	    #    include portal_out.conf;
+	    #    proxy_pass  http://sekorm/portal/news/pageList?currentPage=1;
+	    #}
+	    # 资讯首页代理
+	    location = /news/ {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/news/pageList?currentPage=1;
+	    }
+	    # 资料首页代理
+	    location = /doc/ {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/doc/pageList?currentPage=1;
+	    }
+                # 问答列表页代理20170424
+	    location = /question/ {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/faq/pageList;
+	    }
+
+                # 问答列表页代理20180607
+            location = /faq/ {
+                include portal_out.conf;
+                proxy_pass  http://sekorm/portal/faq/pageList;
+            }
+		# 资讯详情页代理
+        location ~ "^/news/(\d+).html" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/news/view?newId=$1&$query_string;
+        }
+        rewrite  ^(?i)/web/news/(\d+).html /news/$1.html permanent;
+
+        # 资料详情页代理
+        location ~ "^/doc/(\d+).html" {
+           include portal_out.conf;
+           proxy_pass  http://sekorm/portal/doc/view?docId=$1&$query_string;
+        }
+        # 章节详情页代理20170725
+        location ~ "^/chapter/(\d+).html" {
+           include portal_out.conf;
+           proxy_pass  http://sekorm/portal/selection/view?chapterId=$1;
+        }
+
+
+		# 展会资讯详情页代理
+        location ~ "^/shownews/(\d+).html" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/shownews/detail?newId=$1&$query_string;
+        }
+        # 展会资料详情页代理
+        location ~ "^/showdocs/(\d+).html" {
+           include portal_out.conf;
+           proxy_pass  http://sekorm/portal/showdocs/detail?docId=$1&$query_string;
+        }
+	    rewrite  ^(?i)/web/doc/(\d+).html /doc/$1.html permanent;
+        # 问答详情页代理
+        location ~ "^/(question|faq)/(\w+).html$" {
+        	include portal_out.conf;
+        	proxy_pass  http://sekorm/portal/faq/detail?idStr=$2&$query_string;
+        }
+	    # 搜索url代理
+if ($request_uri ~ "^/Web/Search/keyword/(.*)$") {
+    set $q $1;
+    rewrite . /portal/toSearchPage?searchWord=$q break;
+}
+        # rewrite ^/Web/Search/keyword/(.*)$ /portal/toSearchPage?searchWord=$1 break;
+	    # 资料索引代理
+	    location ~ "^/doc/index/(\d+)/$" {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/doc/getDocByIndex?code=$1;
+	    }
+	    # 活动页面代理
+	    location ~ "^/activity/(\d+).html$" {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/activity/view?id=$1&$query_string;
+	    }
+        # 活动第二版页面代理
+        location ~ "^/acti/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/activity/v2/view?id=$1&$query_string;
+        }
+        
+        # 活动页面代理 研讨会20161116
+        location ~ "/doing/seminar/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/activity/v2/view?id=$1&$query_string;
+        }
+
+        # 活动页面代理 市场活动
+        location ~ "/doing/market/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/marketing/view?id=$1&$query_string;
+        }
+
+        # 活动页面代理 专题活动
+         location ~ "/doing/special/(\d+).html$" {
+             include portal_out.conf;
+             proxy_pass  http://sekorm/portal/activity/view?id=$1&$query_string;
+        }
+
+        # 活动页面代理 报名
+        location ~ "/doing/enroll/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/acDetail/detail?id=$1&$query_string;
+        }
+
+        # 活动页面代理 下载
+        location ~ "/doing/down/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/acDetail/detail?id=$1&$query_string;
+        }
+
+        # 活动页面代理 其它20161116
+        location ~ "/doing/other/(\d+).html$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/acDetail/detail?id=$1&$query_string;
+        }
+
+        # 元件供应
+        location = /supply/ {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/ecSupply/toPage;
+        }
+
+	    # 品牌代理
+        location = /brand/ {
+            include portal_out.conf;
+            proxy_pass http://sekorm/portal/toBrandPage;
+        }
+        rewrite ^/brand/([\w\-]+)$ /brand/$1/ permanent;
+        location ~ "^/brand/(.*)/$" {
+            include portal_out.conf;
+            proxy_pass  http://sekorm/portal/jsp/static/company_detail_$1.html;
+        }
+	    # 公司简介
+	    location = /about/ {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/jsp/static/about_us_intro.jsp;
+	    }
+	   	# 客户与服务
+	    location = /service/ {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/jsp/static/about_customer_service.jsp;
+	    }
+	    # 联系我们
+	    location = /contact/ {
+	    	include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/jsp/static/about_contact_us.jsp;
+	    }
+        # 企业里程碑
+        location = /milestone/ {
+             include portal_out.conf;
+             proxy_pass  http://sekorm/portal/jsp/static/about_milestone.jsp;
+        }
+
+        # 文化与愿景
+        location = /culture/ {
+             include portal_out.conf;
+             proxy_pass  http://sekorm/portal/jsp/static/about_culture.jsp;
+        }
+
+	    # SEO robots配置
+	    #location = /robots.txt {
+	    #		rewrite (.*) /front/website/robots.txt;
+	    #}
+	    # 资料预览的代理
+	    location ~ "^/doc/(\d+)/(.*).pdf$" {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/doc/viewPDF?docId=$1;
+	    }
+	    # portal的配置
+	    location / {
+	        include portal_out.conf;
+	        proxy_pass  http://sekorm/portal/;
+                #default_type text/plain;
+                #content_by_lua '
+                #    ngx.say("Nginx Worker PID: ", ngx.worker.pid())
+                #';
+	    }
+        location = /upstreams {
+            default_type text/plain;
+            content_by_lua_block {
+                local concat = table.concat
+                local upstream = require "ngx.upstream"
+                local get_servers = upstream.get_servers
+                local get_upstreams = upstream.get_upstreams
+
+                local us = get_upstreams()
+                for _, u in ipairs(us) do
+                    ngx.say("upstream ", u, ":")
+                    local srvs, err = get_servers(u)
+                    if not srvs then
+                        ngx.say("failed to get servers in upstream ", u)
+                    else
+                        for _, srv in ipairs(srvs) do
+                            local first = true
+                            for k, v in pairs(srv) do
+                                if first then
+                                    first = false
+                                    ngx.print("    ")
+                                else
+                                    ngx.print(", ")
+                                end
+                                if type(v) == "table" then
+                                    ngx.print(k, " = {", concat(v, ", "), "}")
+                                else
+                                    ngx.print(k, " = ", v)
+                                end
+                            end
+                            ngx.print("\n")
+                        end
+                    end
+                end
+            }
+        }
+   		###########################################################################################
